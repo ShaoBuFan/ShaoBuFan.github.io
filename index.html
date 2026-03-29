@@ -673,7 +673,8 @@ async function loadComments(force = false) {
 }
 
 // ===== 伪实时 =====
-setInterval(() => loadComments(true), 5000);
+// 每 60 秒静默更新一次，传入 false 允许合理利用缓存
+setInterval(() => loadComments(false), 60000);
 
 // ===== 初始化 =====
 loadComments();
