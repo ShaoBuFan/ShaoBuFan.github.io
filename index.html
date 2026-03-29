@@ -590,7 +590,7 @@ async function fetchComments(force = false) {
   headers: { "Content-Type": "application/json" },
   body: JSON.stringify({
     event: "GET_COMMENT",
-    url: location.href,
+    url: location.pathname,
     ua: navigator.userAgent
   })
 });
@@ -730,7 +730,7 @@ document.getElementById("btnSubmit").addEventListener("click", async () => {
       headers: {"Content-Type": "application/json"},
       body: JSON.stringify({
         event: "COMMENT_SUBMIT",
-        url: location.href,
+        url: location.pathname,
         nick: name || "匿名",
         comment: text,
         meta: { title },
