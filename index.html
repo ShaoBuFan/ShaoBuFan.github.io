@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<title>存在计时器</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;1,400&family=DM+Sans:wght@300;400&display=swap" rel="stylesheet">
+
+<style>
+  :root {
+    --bg:        #F5F0E8;
+    --bg-card:   #EDE8DE;
+    --bg-hover:  #E5DFD2;
+    --border:    #D8D0C0;
+    --text-main: #2C2417;
+    --text-sub:  #7A6E5F;
+    --text-dim:  #A89E8E;
+    --accent:    #8B6F47;
+    --accent2:   #C4956A;
+    --bar-bg:    #DDD6C8;
+    --bar-fill1: #8B6F47;
+    --bar-fill2: #C4956A;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background-color: var(--bg);
+    background-image:
+      radial-gradient(ellipse 80% 60% at 20% 10%, rgba(196,149,106,0.08) 0%, transparent 60%),
+      radial-gradient(ellipse 60% 80% at 80% 90%, rgba(139,111,71,0.06) 0%, transparent 60%);
+    color: var(--text-main);
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 24px;
+  }
+
+  .container {
+    width: 100%;
+    max-width: 580px;
+  }
+
+  /* ── 顶部标签 ── */
+  .eyebrow {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 11px;
+    font-weight: 400;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    margin-bottom: 20px;
+  }
+
+  /* ── 主时间显示 ── */
+  .main-time {
+    font-family: 'Lora', Georgia, serif;
+    font-size: clamp(26px, 5vw, 36px);
+    font-weight: 400;
+    line-height: 1.45;
+    color: var(--text-main);
+    letter-spacing: -0.01em;
+    margin-bottom: 32px;
+    animation: breathe 5s ease-in-out infinite;
+  }
+
+  @keyframes breathe {
+    0%, 100% { opacity: 0.88; }
+    50%       { opacity: 1;    }
+  }
+
+  /* ── 进度条 ── */
+  .progress-wrap {
+    margin-bottom: 36px;
+  }
+
+  .progress-label {
+    display: flex;
+    justify-content: space-between;
+    font-size: 11px;
+    color: var(--text-dim);
+    letter-spacing: 0.06em;
+    margin-bottom: 8px;
+  }
+
+  .progress-track {
+    height: 3px;
+    background: var(--bar-bg);
+    border-radius: 99px;
+    overflow: hidden;
+  }
+
+  .progress-fill {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg, var(--bar-fill1), var(--bar-fill2));
+    border-radius: 99px;
+    transition: width 0.9s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  /* ── 分隔线 ── */
+  .divider {
+    height: 1px;
+    background: var(--border);
+    margin-bottom: 20px;
+    opacity: 0.6;
+  }
+
+  /* ── 信息网格 ── */
+  .grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+
+  .card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px 18px;
+    transition: background 0.2s, transform 0.2s;
+    cursor: default;
+  }
+
+  .card:hover {
+    background: var(--bg-hover);
+    transform: translateY(-1px);
+  }
+
+  .card-label {
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    margin-bottom: 8px;
+  }
+
+  .card-value {
+    font-family: 'Lora', serif;
+    font-size: 15px;
+    color: var(--text-main);
+    line-height: 1.6;
+  }
+
+  .card-sub {
+    font-size: 11px;
+    color: var(--text-sub);
+    margin-top: 4px;
+    line-height: 1.5;
+  }
+
+  /* ── 底部签名 ── */
+  .footer {
+    margin-top: 28px;
+    font-size: 11px;
+    color: var(--text-dim);
+    letter-spacing: 0.06em;
+    text-align: right;
+  }
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+  <div class="eyebrow">You have existed for</div>
+
+  <div class="main-time" id="mainTime">—</div>
+
+  <div class="progress-wrap">
+    <div class="progress-label">
+      <span>生命进度</span>
+      <span id="progressPct">—</span>
+    </div>
+    <div class="progress-track">
+      <div class="progress-fill" id="progressFill"></div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <div class="grid">
+
+    <div class="card">
+      <div class="card-label">预期进度</div>
+      <div class="card-value" id="pctMean">—</div>
+      <div class="card-sub" id="pctRange">—</div>
+    </div>
+
+    <div class="card">
+      <div class="card-label">预期剩余</div>
+      <div class="card-value" id="remainMean">—</div>
+      <div class="card-sub" id="remainRange">—</div>
+    </div>
+
+    <div class="card">
+      <div class="card-label">估计心跳</div>
+      <div class="card-value" id="heartbeat">—</div>
+      <div class="card-sub">@ 70 次 / 分</div>
+    </div>
+
+    <div class="card">
+      <div class="card-label">地球公转</div>
+      <div class="card-value" id="earth">—</div>
+      <div class="card-sub">绕太阳完整圈数</div>
+    </div>
+
+  </div>
+
+  <div class="footer">μ = 80 yr · σ = 10 yr · n = 2000</div>
+
+</div>
+
+<script>
+// ── 参数 ──
+const BIRTH      = new Date("2001-12-04T23:00:00+08:00");
+const HEART_RATE = 70;   // bpm
+const MU         = 80;
+const SIGMA      = 10;
+const N          = 2000;
+
+// ── 精确时间差（推进法）──
+function exactDiff(now) {
+  let t = new Date(BIRTH);
+  let y = 0, mo = 0;
+
+  for (;;) {
+    const nx = new Date(t); nx.setFullYear(nx.getFullYear() + 1);
+    if (nx <= now) { t = nx; y++; } else break;
+  }
+  for (;;) {
+    const nx = new Date(t); nx.setMonth(nx.getMonth() + 1);
+    if (nx <= now) { t = nx; mo++; } else break;
+  }
+
+  let rem = now - t;
+  const d   = Math.floor(rem / 86400000); rem %= 86400000;
+  const h   = Math.floor(rem / 3600000);  rem %= 3600000;
+  const min = Math.floor(rem / 60000);
+  const s   = Math.floor((rem % 60000) / 1000);
+
+  return { y, mo, d, h, min, s };
+}
+
+// ── Box-Muller 正态采样 ──
+function randNorm(mu, sigma) {
+  const u1 = Math.random(), u2 = Math.random();
+  return mu + sigma * Math.sqrt(-2 * Math.log(u1)) * Math.cos(2 * Math.PI * u2);
+}
+
+// ── 生命模型 Monte Carlo ──
+function lifeModel(now) {
+  const age = (now - BIRTH) / (1000 * 60 * 60 * 24 * 365.2422);
+  const pcts = [], rems = [];
+
+  for (let i = 0; i < N; i++) {
+    const L = randNorm(MU, SIGMA);
+    if (L <= age) continue;
+    pcts.push(age / L);
+    rems.push((L - age) * 365.2422);
+  }
+
+  pcts.sort((a, b) => a - b);
+  rems.sort((a, b) => a - b);
+
+  const avg = arr => arr.reduce((a, b) => a + b, 0) / arr.length;
+  const q   = (arr, p) => arr[Math.floor(arr.length * p)];
+
+  return {
+    pctMean:    avg(pcts),
+    pct10:      q(pcts, 0.1),
+    pct90:      q(pcts, 0.9),
+    remMean:    avg(rems),
+    rem10:      q(rems, 0.1),
+    rem90:      q(rems, 0.9),
+    age,
+  };
+}
+
+// ── 渲染 ──
+function fmt(n) { return n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ','); }
+
+function update() {
+  const now  = new Date();
+  const diff = exactDiff(now);
+  const mdl  = lifeModel(now);
+
+  // 主时间
+  document.getElementById('mainTime').textContent =
+    `${diff.y} 年  ${diff.mo} 月  ${diff.d} 天\n${diff.h} 时  ${diff.min} 分  ${diff.s} 秒`;
+
+  // 进度
+  const pct = (mdl.pctMean * 100).toFixed(4);
+  document.getElementById('progressPct').textContent  = pct + '%';
+  document.getElementById('progressFill').style.width = pct + '%';
+
+  // 卡片：进度
+  document.getElementById('pctMean').textContent  = pct + '%';
+  document.getElementById('pctRange').textContent =
+    `区间 ${(mdl.pct10 * 100).toFixed(2)}% — ${(mdl.pct90 * 100).toFixed(2)}%`;
+
+  // 卡片：剩余
+  document.getElementById('remainMean').textContent  = fmt(Math.round(mdl.remMean)) + ' 天';
+  document.getElementById('remainRange').textContent =
+    `区间 ${fmt(Math.round(mdl.rem10))} — ${fmt(Math.round(mdl.rem90))} 天`;
+
+  // 心跳（累计总次数）
+  const totalMin = (now - BIRTH) / 60000;
+  document.getElementById('heartbeat').textContent =
+    fmt(Math.floor(totalMin * HEART_RATE)) + ' 次';
+
+  // 地球公转（修正 bug：单位是圈/年，不是天）
+  document.getElementById('earth').textContent =
+    mdl.age.toFixed(6) + ' 圈';
+}
+
+setInterval(update, 1000);
+update();
+</script>
+
+</body>
+</html>
