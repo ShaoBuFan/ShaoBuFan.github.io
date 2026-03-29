@@ -167,6 +167,151 @@
     white-space: pre;
   }
 
+  /* ── 评论区 ── */
+  .comments-section { margin-top: 40px; }
+
+  .comments-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+
+  .comments-title {
+    font-size: 11px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+  }
+
+  .comments-count {
+    font-size: 11px;
+    color: var(--text-dim);
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 99px;
+    padding: 1px 8px;
+  }
+
+  .compose {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 20px;
+  }
+
+  .compose-row {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 10px;
+  }
+
+  .input-name { width: 140px; flex-shrink: 0; }
+
+  input, textarea {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 9px 12px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    color: var(--text-main);
+    outline: none;
+    width: 100%;
+    transition: border-color 0.2s;
+  }
+
+  input::placeholder, textarea::placeholder { color: var(--text-dim); }
+  input:focus, textarea:focus { border-color: var(--accent); }
+
+  textarea {
+    resize: none;
+    height: 72px;
+    line-height: 1.5;
+  }
+
+  .compose-footer {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 12px;
+    margin-top: 10px;
+  }
+
+  .char-count { font-size: 11px; color: var(--text-dim); }
+
+  .btn-submit {
+    background: var(--accent);
+    color: #F5F0E8;
+    border: none;
+    border-radius: 8px;
+    padding: 8px 18px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 12px;
+    letter-spacing: 0.06em;
+    cursor: pointer;
+    transition: background 0.2s, opacity 0.2s;
+  }
+
+  .btn-submit:hover    { background: var(--accent2); }
+  .btn-submit:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  .submit-msg {
+    font-size: 11px;
+    color: var(--text-sub);
+    text-align: right;
+    min-height: 16px;
+    margin-top: 6px;
+  }
+
+  .comment-list { display: flex; flex-direction: column; gap: 10px; }
+
+  .comment-item {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px 16px;
+    animation: fadeIn 0.3s ease;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(4px); }
+    to   { opacity: 1; transform: translateY(0);   }
+  }
+
+  .comment-meta {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    margin-bottom: 6px;
+  }
+
+  .comment-name { font-size: 12px; color: var(--accent); letter-spacing: 0.02em; }
+  .comment-time { font-size: 10px; color: var(--text-dim); }
+
+  .comment-text {
+    font-size: 13px;
+    color: var(--text-main);
+    line-height: 1.6;
+    word-break: break-word;
+  }
+
+  .comments-empty {
+    font-size: 13px;
+    color: var(--text-dim);
+    text-align: center;
+    padding: 24px 0;
+  }
+
+  .comments-loading {
+    font-size: 12px;
+    color: var(--text-dim);
+    text-align: center;
+    padding: 16px 0;
+    letter-spacing: 0.06em;
+  }
+
   /* ── 移动端 ── */
   @media (max-width: 480px) {
     body {
@@ -219,6 +364,9 @@
       margin-top: 20px;
       font-size: 10px;
     }
+
+    .compose-row { flex-direction: column; }
+    .input-name  { width: 100%; }
   }
 </style>
 </head>
@@ -272,6 +420,36 @@
   </div>
 
   <div class="footer">μ = 80 yr · σ = 10 yr · n = 2000</div>
+
+  <!-- ── 评论区 ── -->
+  <div class="comments-section">
+
+    <div class="comments-header">
+      <span class="comments-title">留言</span>
+      <span class="comments-count" id="commentsCount">…</span>
+    </div>
+
+    <div class="compose">
+      <div class="compose-row">
+        <input class="input-name" id="inputName" type="text"
+               maxlength="20" placeholder="你的名字（可匿名）" autocomplete="off">
+        <input id="inputTitle" type="text"
+               maxlength="30" placeholder="一句话标题（可选）" autocomplete="off">
+      </div>
+      <textarea id="inputMsg" maxlength="200"
+                placeholder="在这个时间节点，留下你来过的痕迹……"></textarea>
+      <div class="compose-footer">
+        <span class="char-count" id="charCount">0 / 200</span>
+        <button class="btn-submit" id="btnSubmit">留言</button>
+      </div>
+      <div class="submit-msg" id="submitMsg"></div>
+    </div>
+
+    <div class="comment-list" id="commentList">
+      <div class="comments-loading">连接中…</div>
+    </div>
+
+  </div>
 
 </div>
 
@@ -378,8 +556,141 @@ function update() {
     mdl.age.toFixed(6) + ' 圈';
 }
 
-setInterval(update, 1000);
-update();
+<!-- ══ Firebase ══ -->
+<!-- 把下面这段替换成你从 Firebase 控制台拿到的 firebaseConfig -->
+<script type="module">
+import { initializeApp }              from "https://esm.sh/firebase@12.11.0/app";
+import { getFirestore, collection,
+         addDoc, query, orderBy,
+         limit, onSnapshot,
+         serverTimestamp }            from "https://esm.sh/firebase@12.11.0/firestore";
+
+const firebaseConfig = {
+  apiKey:            "AIzaSyCNupRJfXEiHCL4FwmPqP_0PDIxZZe6Kqo",
+  authDomain:        "existence-timer.firebaseapp.com",
+  projectId:         "existence-timer",
+  storageBucket:     "existence-timer.firebasestorage.app",
+  messagingSenderId: "1096284873666",
+  appId:             "1:1096284873666:web:e4f4dd6fab2d3ec6c92c5b"
+};
+
+const app = initializeApp(firebaseConfig);
+const db  = getFirestore(app);
+const col = collection(db, "comments");
+
+// ── 时间格式 ──
+function fmtTime(ts) {
+  if (!ts) return '';
+  const d = ts.toDate ? ts.toDate() : new Date(ts);
+  return d.toLocaleString('zh-CN', {
+    year: 'numeric', month: '2-digit', day: '2-digit',
+    hour: '2-digit', minute: '2-digit'
+  });
+}
+
+// ── 渲染留言 ──
+function renderComments(docs) {
+  const list = document.getElementById('commentList');
+  const cnt  = document.getElementById('commentsCount');
+  cnt.textContent = docs.length;
+
+  if (docs.length === 0) {
+    list.innerHTML = '<div class="comments-empty">还没有人留言，来成为第一个？</div>';
+    return;
+  }
+
+  list.innerHTML = '';
+  docs.forEach(doc => {
+    const d    = doc.data();
+    const item = document.createElement('div');
+    item.className = 'comment-item';
+
+    const meta = document.createElement('div');
+    meta.className = 'comment-meta';
+
+    const name = document.createElement('span');
+    name.className   = 'comment-name';
+    name.textContent = d.name || '匿名';
+
+    const time = document.createElement('span');
+    time.className   = 'comment-time';
+    time.textContent = fmtTime(d.createdAt);
+
+    meta.appendChild(name);
+    if (d.title) {
+      const title = document.createElement('span');
+      title.className   = 'comment-time';
+      title.textContent = '· ' + d.title;
+      meta.appendChild(title);
+    }
+    meta.appendChild(time);
+
+    const text = document.createElement('div');
+    text.className   = 'comment-text';
+    text.textContent = d.text;
+
+    item.appendChild(meta);
+    item.appendChild(text);
+    list.appendChild(item);
+  });
+}
+
+// ── 实时监听（最新 100 条，按时间倒序）──
+const q = query(col, orderBy('createdAt', 'desc'), limit(100));
+onSnapshot(q, snap => renderComments(snap.docs));
+
+// ── 字数统计 ──
+const inputMsg  = document.getElementById('inputMsg');
+const charCount = document.getElementById('charCount');
+inputMsg.addEventListener('input', () => {
+  charCount.textContent = `${inputMsg.value.length} / 200`;
+});
+
+// ── 提交 ──
+let lastSubmit = 0;
+const btn       = document.getElementById('btnSubmit');
+const submitMsg = document.getElementById('submitMsg');
+
+btn.addEventListener('click', async () => {
+  const text  = inputMsg.value.trim();
+  const name  = document.getElementById('inputName').value.trim();
+  const title = document.getElementById('inputTitle').value.trim();
+
+  if (!text) {
+    submitMsg.textContent = '请写点什么 :)';
+    return;
+  }
+
+  // 30 秒冷却
+  const now = Date.now();
+  if (now - lastSubmit < 30000) {
+    const left = Math.ceil((30000 - (now - lastSubmit)) / 1000);
+    submitMsg.textContent = `请等 ${left} 秒后再提交`;
+    return;
+  }
+
+  btn.disabled        = true;
+  submitMsg.textContent = '提交中…';
+
+  try {
+    await addDoc(col, {
+      name:      name  || '匿名',
+      title:     title || '',
+      text,
+      createdAt: serverTimestamp()
+    });
+    inputMsg.value        = '';
+    charCount.textContent = '0 / 200';
+    submitMsg.textContent = '留言成功 ✓';
+    lastSubmit            = Date.now();
+    setTimeout(() => { submitMsg.textContent = ''; }, 3000);
+  } catch (e) {
+    submitMsg.textContent = '提交失败，请检查网络';
+    console.error(e);
+  } finally {
+    btn.disabled = false;
+  }
+});
 </script>
 
 </body>
