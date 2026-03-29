@@ -2,6 +2,7 @@
 <html lang="zh">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>存在计时器</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -159,6 +160,65 @@
     color: var(--text-dim);
     letter-spacing: 0.06em;
     text-align: right;
+  }
+
+  /* ── 主时间换行 ── */
+  .main-time {
+    white-space: pre;
+  }
+
+  /* ── 移动端 ── */
+  @media (max-width: 480px) {
+    body {
+      align-items: flex-start;
+      padding: 48px 20px 36px;
+    }
+
+    .main-time {
+      font-size: clamp(20px, 6vw, 28px);
+      margin-bottom: 24px;
+      white-space: pre;
+    }
+
+    .progress-wrap {
+      margin-bottom: 28px;
+    }
+
+    .grid {
+      grid-template-columns: 1fr;
+      gap: 8px;
+    }
+
+    .card {
+      padding: 14px 16px;
+      /* 横排：label 左，value 右 */
+      display: flex;
+      align-items: baseline;
+      gap: 10px;
+    }
+
+    .card-label {
+      flex-shrink: 0;
+      margin-bottom: 0;
+      width: 64px;
+    }
+
+    .card-value {
+      font-size: 14px;
+    }
+
+    .card-sub {
+      margin-top: 0;
+      margin-left: auto;
+      text-align: right;
+      font-size: 10px;
+      flex-shrink: 0;
+    }
+
+    .footer {
+      margin-top: 20px;
+      font-size: 10px;
+    }
   }
 </style>
 </head>
