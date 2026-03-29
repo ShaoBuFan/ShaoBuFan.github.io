@@ -560,135 +560,192 @@ setInterval(update, 1000);
 update();
 </script>
 
-<!-- ══ Firebase ══ -->
-<script type="module">
-import { initializeApp }              from "https://esm.sh/firebase@12.11.0/app";
-import { getFirestore, collection,
-         addDoc, query, orderBy,
-         limit, onSnapshot,
-         serverTimestamp }            from "https://esm.sh/firebase@12.11.0/firestore";
+<script>
+// ===== Twikoo API =====
+const API = "https://lifetime-commemorate.netlify.app";
 
-const firebaseConfig = {
-  apiKey:            "AIzaSyCNupRJfXEiHCL4FwmPqP_0PDIxZZe6Kqo",
-  authDomain:        "existence-timer.firebaseapp.com",
-  projectId:         "existence-timer",
-  storageBucket:     "existence-timer.firebasestorage.app",
-  messagingSenderId: "1096284873666",
-  appId:             "1:1096284873666:web:e4f4dd6fab2d3ec6c92c5b"
-};
+// ===== 缓存 =====
+let cache = { data: [], time: 0 };
+const CACHE_TTL = 5000;
 
-const app = initializeApp(firebaseConfig);
-const db  = getFirestore(app);
-const col = collection(db, "comments");
-
-// ── 时间格式 ──
-function fmtTime(ts) {
-  if (!ts) return '';
-  const d = ts.toDate ? ts.toDate() : new Date(ts);
-  return d.toLocaleString('zh-CN', {
-    year: 'numeric', month: '2-digit', day: '2-digit',
-    hour: '2-digit', minute: '2-digit'
-  });
-}
-
-// ── 渲染留言 ──
-function renderComments(docs) {
-  const list = document.getElementById('commentList');
-  const cnt  = document.getElementById('commentsCount');
-  cnt.textContent = docs.length;
-
-  if (docs.length === 0) {
-    list.innerHTML = '<div class="comments-empty">还没有人留言，来成为第一个？</div>';
-    return;
-  }
-
-  list.innerHTML = '';
-  docs.forEach(doc => {
-    const d    = doc.data();
-    const item = document.createElement('div');
-    item.className = 'comment-item';
-
-    const meta = document.createElement('div');
-    meta.className = 'comment-meta';
-
-    const name = document.createElement('span');
-    name.className   = 'comment-name';
-    name.textContent = d.name || '匿名';
-
-    const time = document.createElement('span');
-    time.className   = 'comment-time';
-    time.textContent = fmtTime(d.createdAt);
-
-    meta.appendChild(name);
-    if (d.title) {
-      const title = document.createElement('span');
-      title.className   = 'comment-time';
-      title.textContent = '· ' + d.title;
-      meta.appendChild(title);
-    }
-    meta.appendChild(time);
-
-    const text = document.createElement('div');
-    text.className   = 'comment-text';
-    text.textContent = d.text;
-
-    item.appendChild(meta);
-    item.appendChild(text);
-    list.appendChild(item);
-  });
-}
-
-// ── 实时监听（最新 100 条，按时间倒序）──
-const q = query(col, orderBy('createdAt', 'desc'), limit(100));
-onSnapshot(q, snap => renderComments(snap.docs));
-
-// ── 字数统计 ──
+// ===== 字数统计（保留你原逻辑）=====
 const inputMsg  = document.getElementById('inputMsg');
 const charCount = document.getElementById('charCount');
+
 inputMsg.addEventListener('input', () => {
   charCount.textContent = `${inputMsg.value.length} / 200`;
 });
 
-// ── 提交 ──
-let lastSubmit = 0;
-const btn       = document.getElementById('btnSubmit');
-const submitMsg = document.getElementById('submitMsg');
+// ===== 获取评论 =====
+async function fetchComments(force = false) {
+  const now = Date.now();
 
-btn.addEventListener('click', async () => {
-  const text  = inputMsg.value.trim();
-  const name  = document.getElementById('inputName').value.trim();
-  const title = document.getElementById('inputTitle').value.trim();
+  if (!force && now - cache.time < CACHE_TTL) {
+    return cache.data;
+  }
 
-  if (!text) {
-    submitMsg.textContent = '请写点什么 :)';
+  try {
+    const res = await fetch(API, {
+      method: "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({
+        event: "GET_COMMENTS",
+        url: location.href
+      })
+    });
+
+    const json = await res.json();
+    const list = json.data || [];
+
+    cache = { data: list, time: now };
+    return list;
+
+  } catch (e) {
+    console.error("获取失败", e);
+    return cache.data;
+  }
+}
+
+// ===== 创建 DOM（防 XSS）=====
+function createCommentNode(item) {
+  const el = document.createElement("div");
+  el.className = "comment-item";
+
+  const meta = document.createElement("div");
+  meta.className = "comment-meta";
+
+  const name = document.createElement("span");
+  name.className = "comment-name";
+  name.textContent = item.nick || "匿名";
+
+  meta.appendChild(name);
+
+  if (item.meta && item.meta.title) {
+    const title = document.createElement("span");
+    title.className = "comment-time";
+    title.textContent = "· " + item.meta.title;
+    meta.appendChild(title);
+  }
+
+  const time = document.createElement("span");
+  time.className = "comment-time";
+  time.textContent = item.created
+    ? new Date(item.created).toLocaleString()
+    : "刚刚";
+
+  meta.appendChild(time);
+
+  const text = document.createElement("div");
+  text.className = "comment-text";
+  text.textContent = item.comment;
+
+  el.appendChild(meta);
+  el.appendChild(text);
+
+  return el;
+}
+
+// ===== 渲染 =====
+function renderComments(list) {
+  const commentList = document.getElementById("commentList");
+  const count = document.getElementById("commentsCount");
+
+  count.textContent = list.length;
+
+  if (!list.length) {
+    commentList.innerHTML =
+      `<div class="comments-empty">还没有人留言，来成为第一个？</div>`;
     return;
   }
 
-  // 30 秒冷却
+  commentList.innerHTML = "";
+
+  list.forEach(item => {
+    commentList.appendChild(createCommentNode(item));
+  });
+}
+
+// ===== 加载 =====
+async function loadComments(force = false) {
+  const list = await fetchComments(force);
+  renderComments(list);
+}
+
+// ===== 伪实时 =====
+setInterval(() => loadComments(true), 5000);
+
+// ===== 初始化 =====
+loadComments();
+
+// ===== 乐观更新 =====
+function optimisticInsert({ name, title, text }) {
+  const commentList = document.getElementById("commentList");
+
+  const fake = {
+    nick: name || "匿名",
+    comment: text,
+    created: Date.now(),
+    meta: { title }
+  };
+
+  const node = createCommentNode(fake);
+  commentList.prepend(node);
+
+  const count = document.getElementById("commentsCount");
+  count.textContent = Number(count.textContent || 0) + 1;
+}
+
+// ===== 提交 =====
+let lastSubmit = 0;
+
+document.getElementById("btnSubmit").addEventListener("click", async () => {
+  const text  = document.getElementById("inputMsg").value.trim();
+  const name  = document.getElementById("inputName").value.trim();
+  const title = document.getElementById("inputTitle").value.trim();
+  const msg   = document.getElementById("submitMsg");
+  const btn   = document.getElementById("btnSubmit");
+
+  if (!text) {
+    msg.textContent = "请写点什么 :)";
+    return;
+  }
+
   const now = Date.now();
   if (now - lastSubmit < 30000) {
     const left = Math.ceil((30000 - (now - lastSubmit)) / 1000);
-    submitMsg.textContent = `请等 ${left} 秒后再提交`;
+    msg.textContent = `请等 ${left} 秒后再提交`;
     return;
   }
 
-  btn.disabled        = true;
-  submitMsg.textContent = '提交中…';
+  btn.disabled = true;
+  msg.textContent = "提交中…";
+
+  // 乐观更新
+  optimisticInsert({ name, title, text });
 
   try {
-    await addDoc(col, {
-      name:      name  || '匿名',
-      title:     title || '',
-      text,
-      createdAt: serverTimestamp()
+    await fetch(API, {
+      method: "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({
+        event: "COMMENT_SUBMIT",
+        url: location.href,
+        nick: name || "匿名",
+        comment: text,
+        meta: { title }
+      })
     });
-    inputMsg.value        = '';
-    charCount.textContent = '0 / 200';
-    submitMsg.textContent = '留言成功 ✓';
-    lastSubmit            = Date.now();
-    setTimeout(() => { submitMsg.textContent = ''; }, 3000);
+
+    document.getElementById("inputMsg").value = "";
+    charCount.textContent = "0 / 200";
+
+    msg.textContent = "留言成功 ✓";
+    lastSubmit = Date.now();
+
+    loadComments(true);
+
   } catch (e) {
-    submitMsg.textContent = '提交失败，请检查网络';
+    msg.textContent = "提交失败";
     console.error(e);
   } finally {
     btn.disabled = false;
