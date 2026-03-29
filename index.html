@@ -10,16 +10,15 @@
 
 <style>
   :root {
-    --bg:        #F5F0E8;
-    --bg-card:   #EDE8DE;
-    --bg-hover:  #E5DFD2;
-    --border:    #D8D0C0;
+    --bg: #F5F0E8;
+    --bg-card: #EDE8DE;
+    --border: #D8D0C0;
     --text-main: #2C2417;
-    --text-sub:  #7A6E5F;
-    --text-dim:  #A89E8E;
-    --accent:    #8B6F47;
-    --accent2:   #C4956A;
-    --bar-bg:    #DDD6C8;
+    --text-sub: #7A6E5F;
+    --text-dim: #A89E8E;
+    --accent: #8B6F47;
+    --accent2: #C4956A;
+    --bar-bg: #DDD6C8;
     --bar-fill1: #8B6F47;
     --bar-fill2: #C4956A;
   }
@@ -36,727 +35,140 @@
     min-height: 100vh;
     display: flex;
     justify-content: center;
-    align-items: center;
-    padding: 24px;
+    padding: 40px 24px;
   }
 
-  .container {
-    width: 100%;
-    max-width: 580px;
-  }
+  .container { width: 100%; max-width: 580px; }
 
-  /* ── 顶部标签 ── */
-  .eyebrow {
-    font-family: 'DM Sans', sans-serif;
-    font-size: 11px;
-    font-weight: 400;
-    letter-spacing: 0.18em;
-    text-transform: uppercase;
-    color: var(--text-dim);
-    margin-bottom: 20px;
-  }
+  .eyebrow { font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--text-dim); margin-bottom: 20px; }
+  .main-time { font-family: 'Lora', Georgia, serif; font-size: clamp(26px, 5vw, 36px); line-height: 1.45; margin-bottom: 32px; white-space: pre; animation: breathe 5s ease-in-out infinite; }
+  @keyframes breathe { 0%, 100% { opacity: 0.88; } 50% { opacity: 1; } }
 
-  /* ── 主时间显示 ── */
-  .main-time {
-    font-family: 'Lora', Georgia, serif;
-    font-size: clamp(26px, 5vw, 36px);
-    font-weight: 400;
-    line-height: 1.45;
-    color: var(--text-main);
-    letter-spacing: -0.01em;
-    margin-bottom: 32px;
-    animation: breathe 5s ease-in-out infinite;
-  }
+  .progress-wrap { margin-bottom: 36px; }
+  .progress-label { display: flex; justify-content: space-between; font-size: 11px; color: var(--text-dim); margin-bottom: 8px; }
+  .progress-track { height: 3px; background: var(--bar-bg); border-radius: 99px; overflow: hidden; }
+  .progress-fill { height: 100%; width: 0%; background: linear-gradient(90deg, var(--bar-fill1), var(--bar-fill2)); border-radius: 99px; transition: width 0.9s cubic-bezier(0.4, 0, 0.2, 1); }
 
-  @keyframes breathe {
-    0%, 100% { opacity: 0.88; }
-    50%       { opacity: 1;    }
-  }
+  .divider { height: 1px; background: var(--border); margin-bottom: 40px; opacity: 0.6; }
 
-  /* ── 进度条 ── */
-  .progress-wrap {
-    margin-bottom: 36px;
-  }
+  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 30px; }
+  .card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px; padding: 16px 18px; }
+  .card-label { font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-dim); margin-bottom: 8px; }
+  .card-value { font-family: 'Lora', serif; font-size: 15px; color: var(--text-main); line-height: 1.6; }
+  .card-sub { font-size: 11px; color: var(--text-sub); margin-top: 4px; }
 
-  .progress-label {
-    display: flex;
-    justify-content: space-between;
-    font-size: 11px;
-    color: var(--text-dim);
-    letter-spacing: 0.06em;
-    margin-bottom: 8px;
-  }
+  .footer { margin-top: 10px; font-size: 11px; color: var(--text-dim); text-align: right; }
 
-  .progress-track {
-    height: 3px;
-    background: var(--bar-bg);
-    border-radius: 99px;
-    overflow: hidden;
-  }
+  /* 评论区微调，确保与原生样式和谐共存 */
+  .comments-section { margin-top: 60px; border-top: 1px solid var(--border); padding-top: 40px; }
+  .comments-header-title { font-size: 12px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--text-dim); margin-bottom: 20px; display: block; }
 
-  .progress-fill {
-    height: 100%;
-    width: 0%;
-    background: linear-gradient(90deg, var(--bar-fill1), var(--bar-fill2));
-    border-radius: 99px;
-    transition: width 0.9s cubic-bezier(0.4, 0, 0.2, 1);
-  }
-
-  /* ── 分隔线 ── */
-  .divider {
-    height: 1px;
-    background: var(--border);
-    margin-bottom: 20px;
-    opacity: 0.6;
-  }
-
-  /* ── 信息网格 ── */
-  .grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 10px;
-  }
-
-  .card {
-    background: var(--bg-card);
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    padding: 16px 18px;
-    transition: background 0.2s, transform 0.2s;
-    cursor: default;
-  }
-
-  .card:hover {
-    background: var(--bg-hover);
-    transform: translateY(-1px);
-  }
-
-  .card-label {
-    font-size: 10px;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    color: var(--text-dim);
-    margin-bottom: 8px;
-  }
-
-  .card-value {
-    font-family: 'Lora', serif;
-    font-size: 15px;
-    color: var(--text-main);
-    line-height: 1.6;
-  }
-
-  .card-sub {
-    font-size: 11px;
-    color: var(--text-sub);
-    margin-top: 4px;
-    line-height: 1.5;
-  }
-
-  /* ── 底部签名 ── */
-  .footer {
-    margin-top: 28px;
-    font-size: 11px;
-    color: var(--text-dim);
-    letter-spacing: 0.06em;
-    text-align: right;
-  }
-
-  /* ── 主时间换行 ── */
-  .main-time {
-    white-space: pre;
-  }
-
-  /* ── 评论区 ── */
-  .comments-section { margin-top: 40px; }
-
-  .comments-header {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin-bottom: 20px;
-  }
-
-  .comments-title {
-    font-size: 11px;
-    letter-spacing: 0.18em;
-    text-transform: uppercase;
-    color: var(--text-dim);
-  }
-
-  .comments-count {
-    font-size: 11px;
-    color: var(--text-dim);
-    background: var(--bg-card);
-    border: 1px solid var(--border);
-    border-radius: 99px;
-    padding: 1px 8px;
-  }
-
-  .compose {
-    background: var(--bg-card);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 16px;
-    margin-bottom: 20px;
-  }
-
-  .compose-row {
-    display: flex;
-    gap: 8px;
-    margin-bottom: 10px;
-  }
-
-  .input-name { width: 140px; flex-shrink: 0; }
-
-  input, textarea {
-    background: var(--bg);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 9px 12px;
-    font-family: 'DM Sans', sans-serif;
-    font-size: 13px;
-    color: var(--text-main);
-    outline: none;
-    width: 100%;
-    transition: border-color 0.2s;
-  }
-
-  input::placeholder, textarea::placeholder { color: var(--text-dim); }
-  input:focus, textarea:focus { border-color: var(--accent); }
-
-  textarea {
-    resize: none;
-    height: 72px;
-    line-height: 1.5;
-  }
-
-  .compose-footer {
-    display: flex;
-    justify-content: flex-end;
-    align-items: center;
-    gap: 12px;
-    margin-top: 10px;
-  }
-
-  .char-count { font-size: 11px; color: var(--text-dim); }
-
-  .btn-submit {
-    background: var(--accent);
-    color: #F5F0E8;
-    border: none;
-    border-radius: 8px;
-    padding: 8px 18px;
-    font-family: 'DM Sans', sans-serif;
-    font-size: 12px;
-    letter-spacing: 0.06em;
-    cursor: pointer;
-    transition: background 0.2s, opacity 0.2s;
-  }
-
-  .btn-submit:hover    { background: var(--accent2); }
-  .btn-submit:disabled { opacity: 0.4; cursor: not-allowed; }
-
-  .submit-msg {
-    font-size: 11px;
-    color: var(--text-sub);
-    text-align: right;
-    min-height: 16px;
-    margin-top: 6px;
-  }
-
-  .comment-list { display: flex; flex-direction: column; gap: 10px; }
-
-  .comment-item {
-    background: var(--bg-card);
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    padding: 14px 16px;
-    animation: fadeIn 0.3s ease;
-  }
-
-  @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(4px); }
-    to   { opacity: 1; transform: translateY(0);   }
-  }
-
-  .comment-meta {
-    display: flex;
-    align-items: baseline;
-    gap: 8px;
-    margin-bottom: 6px;
-  }
-
-  .comment-name { font-size: 12px; color: var(--accent); letter-spacing: 0.02em; }
-  .comment-time { font-size: 10px; color: var(--text-dim); }
-
-  .comment-text {
-    font-size: 13px;
-    color: var(--text-main);
-    line-height: 1.6;
-    word-break: break-word;
-  }
-
-  .comments-empty {
-    font-size: 13px;
-    color: var(--text-dim);
-    text-align: center;
-    padding: 24px 0;
-  }
-
-  .comments-loading {
-    font-size: 12px;
-    color: var(--text-dim);
-    text-align: center;
-    padding: 16px 0;
-    letter-spacing: 0.06em;
-  }
-
-  /* ── 移动端 ── */
   @media (max-width: 480px) {
-    body {
-      align-items: flex-start;
-      padding: 48px 20px 36px;
-    }
-
-    .main-time {
-      font-size: clamp(20px, 6vw, 28px);
-      margin-bottom: 24px;
-      white-space: pre;
-    }
-
-    .progress-wrap {
-      margin-bottom: 28px;
-    }
-
-    .grid {
-      grid-template-columns: 1fr;
-      gap: 8px;
-    }
-
-    .card {
-      padding: 14px 16px;
-      /* 横排：label 左，value 右 */
-      display: flex;
-      align-items: baseline;
-      gap: 10px;
-    }
-
-    .card-label {
-      flex-shrink: 0;
-      margin-bottom: 0;
-      width: 64px;
-    }
-
-    .card-value {
-      font-size: 14px;
-    }
-
-    .card-sub {
-      margin-top: 0;
-      margin-left: auto;
-      text-align: right;
-      font-size: 10px;
-      flex-shrink: 0;
-    }
-
-    .footer {
-      margin-top: 20px;
-      font-size: 10px;
-    }
-
-    .compose-row { flex-direction: column; }
-    .input-name  { width: 100%; }
+    .grid { grid-template-columns: 1fr; }
+    .card { display: flex; align-items: baseline; justify-content: space-between; }
+    .card-label { margin-bottom: 0; }
   }
 </style>
 </head>
-
 <body>
 
 <div class="container">
-
   <div class="eyebrow">You have existed for</div>
-
   <div class="main-time" id="mainTime">—</div>
 
   <div class="progress-wrap">
-    <div class="progress-label">
-      <span>生命进度</span>
-      <span id="progressPct">—</span>
-    </div>
-    <div class="progress-track">
-      <div class="progress-fill" id="progressFill"></div>
-    </div>
+    <div class="progress-label"><span>生命进度</span><span id="progressPct">—</span></div>
+    <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
   </div>
 
-  <div class="divider"></div>
-
   <div class="grid">
-
     <div class="card">
       <div class="card-label">预期进度</div>
-      <div class="card-value" id="pctMean">—</div>
-      <div class="card-sub" id="pctRange">—</div>
+      <div id="pctMean" class="card-value">—</div>
     </div>
-
     <div class="card">
       <div class="card-label">预期剩余</div>
-      <div class="card-value" id="remainMean">—</div>
-      <div class="card-sub" id="remainRange">—</div>
+      <div id="remainMean" class="card-value">—</div>
     </div>
-
     <div class="card">
       <div class="card-label">估计心跳</div>
-      <div class="card-value" id="heartbeat">—</div>
-      <div class="card-sub">@ 70 次 / 分</div>
+      <div id="heartbeat" class="card-value">—</div>
     </div>
-
     <div class="card">
       <div class="card-label">地球公转</div>
-      <div class="card-value" id="earth">—</div>
-      <div class="card-sub">绕太阳完整圈数</div>
+      <div id="earth" class="card-value">—</div>
     </div>
-
   </div>
 
   <div class="footer">μ = 80 yr · σ = 10 yr · n = 2000</div>
 
-  <!-- ── 评论区 ── -->
   <div class="comments-section">
-
-    <div class="comments-header">
-      <span class="comments-title">留言</span>
-      <span class="comments-count" id="commentsCount">…</span>
-    </div>
-
-    <div class="compose">
-      <div class="compose-row">
-        <input class="input-name" id="inputName" type="text"
-               maxlength="20" placeholder="你的名字（可匿名）" autocomplete="off">
-        <input id="inputTitle" type="text"
-               maxlength="30" placeholder="一句话标题（可选）" autocomplete="off">
-      </div>
-      <textarea id="inputMsg" maxlength="200"
-                placeholder="在这个时间节点，留下你来过的痕迹……"></textarea>
-      <div class="compose-footer">
-        <span class="char-count" id="charCount">0 / 200</span>
-        <button class="btn-submit" id="btnSubmit">留言</button>
-      </div>
-      <div class="submit-msg" id="submitMsg"></div>
-    </div>
-
-    <div class="comment-list" id="commentList">
-      <div class="comments-loading">连接中…</div>
-    </div>
-
+    <span class="comments-header-title">痕迹 / Comments</span>
+    <div id="tcomment"></div>
   </div>
-
 </div>
 
 <script>
-// ── 参数 ──
-const BIRTH      = new Date("2001-12-04T23:00:00+08:00");
-const HEART_RATE = 70;   // bpm
-const MU         = 80;
-const SIGMA      = 10;
-const N          = 2000;
+// ── 核心逻辑（保持不变） ──
+const BIRTH = new Date("2001-12-04T23:00:00+08:00");
+const HEART_RATE = 70; const MU = 80; const SIGMA = 10; const N = 2000;
 
-// ── 精确时间差（推进法）──
 function exactDiff(now) {
-  let t = new Date(BIRTH);
-  let y = 0, mo = 0;
-
-  for (;;) {
-    const nx = new Date(t); nx.setFullYear(nx.getFullYear() + 1);
-    if (nx <= now) { t = nx; y++; } else break;
-  }
-  for (;;) {
-    const nx = new Date(t); nx.setMonth(nx.getMonth() + 1);
-    if (nx <= now) { t = nx; mo++; } else break;
-  }
-
+  let t = new Date(BIRTH); let y = 0, mo = 0;
+  for (;;) { const nx = new Date(t); nx.setFullYear(nx.getFullYear() + 1); if (nx <= now) { t = nx; y++; } else break; }
+  for (;;) { const nx = new Date(t); nx.setMonth(nx.getMonth() + 1); if (nx <= now) { t = nx; mo++; } else break; }
   let rem = now - t;
-  const d   = Math.floor(rem / 86400000); rem %= 86400000;
-  const h   = Math.floor(rem / 3600000);  rem %= 3600000;
-  const min = Math.floor(rem / 60000);
-  const s   = Math.floor((rem % 60000) / 1000);
-
+  const d = Math.floor(rem / 86400000); rem %= 86400000;
+  const h = Math.floor(rem / 3600000); rem %= 3600000;
+  const min = Math.floor(rem / 60000); const s = Math.floor((rem % 60000) / 1000);
   return { y, mo, d, h, min, s };
 }
 
-// ── Box-Muller 正态采样 ──
 function randNorm(mu, sigma) {
   const u1 = Math.random(), u2 = Math.random();
   return mu + sigma * Math.sqrt(-2 * Math.log(u1)) * Math.cos(2 * Math.PI * u2);
 }
 
-// ── 生命模型 Monte Carlo ──
 function lifeModel(now) {
   const age = (now - BIRTH) / (1000 * 60 * 60 * 24 * 365.2422);
   const pcts = [], rems = [];
-
   for (let i = 0; i < N; i++) {
-    const L = randNorm(MU, SIGMA);
-    if (L <= age) continue;
-    pcts.push(age / L);
-    rems.push((L - age) * 365.2422);
+    const L = randNorm(MU, SIGMA); if (L <= age) continue;
+    pcts.push(age / L); rems.push((L - age) * 365.2422);
   }
-
-  pcts.sort((a, b) => a - b);
-  rems.sort((a, b) => a - b);
-
+  pcts.sort((a, b) => a - b); rems.sort((a, b) => a - b);
   const avg = arr => arr.reduce((a, b) => a + b, 0) / arr.length;
-  const q   = (arr, p) => arr[Math.floor(arr.length * p)];
-
-  return {
-    pctMean:    avg(pcts),
-    pct10:      q(pcts, 0.1),
-    pct90:      q(pcts, 0.9),
-    remMean:    avg(rems),
-    rem10:      q(rems, 0.1),
-    rem90:      q(rems, 0.9),
-    age,
-  };
+  return { pctMean: avg(pcts), remMean: avg(rems), age };
 }
 
-// ── 渲染 ──
 function fmt(n) { return n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ','); }
 
 function update() {
-  const now  = new Date();
+  const now = new Date();
   const diff = exactDiff(now);
-  const mdl  = lifeModel(now);
-
-  // 主时间
-  document.getElementById('mainTime').textContent =
-    `${diff.y} 年  ${diff.mo} 月  ${diff.d} 天\n${diff.h} 时  ${diff.min} 分  ${diff.s} 秒`;
-
-  // 进度
+  const mdl = lifeModel(now);
+  document.getElementById('mainTime').textContent = `${diff.y} 年  ${diff.mo} 月  ${diff.d} 天\n${diff.h} 时  ${diff.min} 分  ${diff.s} 秒`;
   const pct = (mdl.pctMean * 100).toFixed(4);
-  document.getElementById('progressPct').textContent  = pct + '%';
+  document.getElementById('progressPct').textContent = pct + '%';
   document.getElementById('progressFill').style.width = pct + '%';
-
-  // 卡片：进度
-  document.getElementById('pctMean').textContent  = pct + '%';
-  document.getElementById('pctRange').textContent =
-    `区间 ${(mdl.pct10 * 100).toFixed(2)}% — ${(mdl.pct90 * 100).toFixed(2)}%`;
-
-  // 卡片：剩余
-  document.getElementById('remainMean').textContent  = fmt(Math.round(mdl.remMean)) + ' 天';
-  document.getElementById('remainRange').textContent =
-    `区间 ${fmt(Math.round(mdl.rem10))} — ${fmt(Math.round(mdl.rem90))} 天`;
-
-  // 心跳（累计总次数）
+  document.getElementById('pctMean').textContent = pct + '%';
+  document.getElementById('remainMean').textContent = fmt(Math.round(mdl.remMean)) + ' 天';
   const totalMin = (now - BIRTH) / 60000;
-  document.getElementById('heartbeat').textContent =
-    fmt(Math.floor(totalMin * HEART_RATE)) + ' 次';
-
-  // 地球公转（修正 bug：单位是圈/年，不是天）
-  document.getElementById('earth').textContent =
-    mdl.age.toFixed(6) + ' 圈';
+  document.getElementById('heartbeat').textContent = fmt(Math.floor(totalMin * HEART_RATE)) + ' 次';
+  document.getElementById('earth').textContent = mdl.age.toFixed(6) + ' 圈';
 }
 
 setInterval(update, 1000);
 update();
 </script>
 
+<script src="https://cdn.jsdelivr.net/npm/twikoo@1.6.39/dist/twikoo.all.min.js"></script>
 <script>
-// ===== Twikoo API =====
-const API = "https://lifetime-commemorate.netlify.app/.netlify/functions/twikoo";
-
-// ===== 缓存 =====
-let cache = { data: [], time: 0 };
-const CACHE_TTL = 5000;
-
-// ===== 字数统计（保留你原逻辑）=====
-const inputMsg  = document.getElementById('inputMsg');
-const charCount = document.getElementById('charCount');
-
-inputMsg.addEventListener('input', () => {
-  charCount.textContent = `${inputMsg.value.length} / 200`;
-});
-
-// ===== 获取评论 =====
-async function fetchComments(force = false) {
-  const now = Date.now();
-
-  if (!force && now - cache.time < CACHE_TTL) {
-    return cache.data;
-  }
-
-  try {
-    const res = await fetch(API, {
-  method: "POST",
-  headers: { "Content-Type": "application/json" },
-  body: JSON.stringify({
-    event: "GET_COMMENT",
-    url: location.pathname,
-    version: "1.7.4",
-    ua: navigator.userAgent
+  twikoo.init({
+    envId: 'https://lifetime-commemorate.netlify.app/.netlify/functions/twikoo',
+    el: '#tcomment',
+    lang: 'zh-CN'
   })
-});
-
-    const json = await res.json();
-    const list = json.data || [];
-
-    cache = { data: list, time: now };
-    return list;
-
-  } catch (e) {
-    console.error("获取失败", e);
-    return cache.data;
-  }
-}
-
-// ===== 创建 DOM（防 XSS）=====
-function createCommentNode(item) {
-  const el = document.createElement("div");
-  el.className = "comment-item";
-
-  const meta = document.createElement("div");
-  meta.className = "comment-meta";
-
-  const name = document.createElement("span");
-  name.className = "comment-name";
-  name.textContent = item.nick || "匿名";
-
-  meta.appendChild(name);
-
-  if (item.meta && item.meta.title) {
-    const title = document.createElement("span");
-    title.className = "comment-time";
-    title.textContent = "· " + item.meta.title;
-    meta.appendChild(title);
-  }
-
-  const time = document.createElement("span");
-  time.className = "comment-time";
-  time.textContent = item.created
-    ? new Date(item.created).toLocaleString()
-    : "刚刚";
-
-  meta.appendChild(time);
-
-  const text = document.createElement("div");
-  text.className = "comment-text";
-  text.textContent = item.comment;
-
-  el.appendChild(meta);
-  el.appendChild(text);
-
-  return el;
-}
-
-// ===== 渲染 =====
-function renderComments(list) {
-  const commentList = document.getElementById("commentList");
-  const count = document.getElementById("commentsCount");
-
-  count.textContent = list.length;
-
-  if (!list.length) {
-    commentList.innerHTML =
-      `<div class="comments-empty">还没有人留言，来成为第一个？</div>`;
-    return;
-  }
-
-  commentList.innerHTML = "";
-
-  list.forEach(item => {
-    commentList.appendChild(createCommentNode(item));
-  });
-}
-
-// ===== 加载 =====
-async function loadComments(force = false) {
-  const list = await fetchComments(force);
-  renderComments(list);
-}
-
-// ===== 伪实时 =====
-// 每 60 秒静默更新一次，传入 false 允许合理利用缓存
-setInterval(() => loadComments(false), 60000);
-
-// ===== 初始化 =====
-loadComments();
-
-// ===== 乐观更新 =====
-function optimisticInsert({ name, title, text }) {
-  const commentList = document.getElementById("commentList");
-
-  const fake = {
-    nick: name || "匿名",
-    comment: text,
-    created: Date.now(),
-    meta: { title }
-  };
-
-  const node = createCommentNode(fake);
-  commentList.prepend(node);
-
-  const count = document.getElementById("commentsCount");
-  count.textContent = Number(count.textContent || 0) + 1;
-}
-
-// ===== 提交 =====
-let lastSubmit = 0;
-
-document.getElementById("btnSubmit").addEventListener("click", async () => {
-  const text  = document.getElementById("inputMsg").value.trim();
-  const name  = document.getElementById("inputName").value.trim();
-  const title = document.getElementById("inputTitle").value.trim();
-  const msg   = document.getElementById("submitMsg");
-  const btn   = document.getElementById("btnSubmit");
-
-  if (!text) {
-    msg.textContent = "请写点什么 :)";
-    return;
-  }
-
-  const now = Date.now();
-  if (now - lastSubmit < 30000) {
-    const left = Math.ceil((30000 - (now - lastSubmit)) / 1000);
-    msg.textContent = `请等 ${left} 秒后再提交`;
-    return;
-  }
-
-  btn.disabled = true;
-  msg.textContent = "提交中…";
-
-  // 乐观更新
-  optimisticInsert({ name, title, text });
-
-  try {
-    await fetch(API, {
-      method: "POST",
-      headers: {"Content-Type": "application/json"},
-      body: JSON.stringify({
-        event: "COMMENT_SUBMIT",
-        url: location.pathname,
-        nick: name || "匿名",
-        comment: text,
-        meta: { title },
-        version: "1.7.4",
-        ua: navigator.userAgent
-      })
-    });
-
-    document.getElementById("inputMsg").value = "";
-    charCount.textContent = "0 / 200";
-
-    msg.textContent = "留言成功 ✓";
-    lastSubmit = Date.now();
-
-    loadComments(true);
-
-  } catch (e) {
-    msg.textContent = "提交失败";
-    console.error(e);
-  } finally {
-    btn.disabled = false;
-  }
-});
 </script>
-
 </body>
 </html>
