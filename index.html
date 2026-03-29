@@ -556,8 +556,11 @@ function update() {
     mdl.age.toFixed(6) + ' 圈';
 }
 
+setInterval(update, 1000);
+update();
+</script>
+
 <!-- ══ Firebase ══ -->
-<!-- 把下面这段替换成你从 Firebase 控制台拿到的 firebaseConfig -->
 <script type="module">
 import { initializeApp }              from "https://esm.sh/firebase@12.11.0/app";
 import { getFirestore, collection,
