@@ -591,6 +591,7 @@ async function fetchComments(force = false) {
   body: JSON.stringify({
     event: "GET_COMMENT",
     url: location.pathname,
+    version: "1.7.4",
     ua: navigator.userAgent
   })
 });
@@ -735,6 +736,7 @@ document.getElementById("btnSubmit").addEventListener("click", async () => {
         nick: name || "匿名",
         comment: text,
         meta: { title },
+        version: "1.7.4",
         ua: navigator.userAgent
       })
     });
