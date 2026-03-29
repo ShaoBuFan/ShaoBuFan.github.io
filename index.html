@@ -586,14 +586,14 @@ async function fetchComments(force = false) {
 
   try {
     const res = await fetch(API, {
-      method: "POST",
-      headers: {"Content-Type": "application/json"},
-      body: JSON.stringify({
-        event: "GET_COMMENTS",
-        url: location.href,
-        ua: navigator.userAgent
-      })
-    });
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({
+    event: "GET_COMMENT",
+    url: location.href,
+    ua: navigator.userAgent
+  })
+});
 
     const json = await res.json();
     const list = json.data || [];
